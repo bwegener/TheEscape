@@ -100,9 +100,8 @@ public class GameActivity extends AppCompatActivity {
 
     private void buildGameBoard() {
 
-        // TODO: Inflate the entire game board (obstacles and exit)
-
-        // TODO: (everything but the player and zombie)
+        // COMPLETED: Inflate the entire game board (obstacles and exit)
+        // COMPLETED: (everything but the player and zombie)
 
         ImageView viewToInflate;
 
@@ -138,8 +137,22 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void createZombie() {
-        // TODO: Determine where to place the Zombie (at game start)
-        // TODO: Then, inflate the zombie layout
+        // COMPLETED: Determine where to place the Zombie (at game start)
+        // COMPLETED: Then, inflate the zombie layout
+        int row = 2;
+        int col = 4;
+        zombieImageView = (ImageView) layoutInflater.inflate(R.layout.zombie_layout, null);
+        zombieImageView.setX(col * SQUARE + OFFSET);
+        zombieImageView.setY(row * SQUARE + OFFSET);
+
+        // Add to relative layout and the list
+        activityGameRelativeLayout.addView(zombieImageView);
+        allGameObjects.add(zombieImageView);
+
+        // Instantiate the Zombie
+        zombie = new Zombie();
+        zombie.setRow(row);
+        zombie.setCol(col);
     }
 
     private void createPlayer() {
