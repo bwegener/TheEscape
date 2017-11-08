@@ -2,6 +2,7 @@ package edu.orangecoastcollege.escapethecatcher;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -179,8 +180,11 @@ public class GameActivity extends AppCompatActivity implements GestureDetector.O
 
 
     private void movePlayer(float velocityX, float velocityY) {
-        // TODO: This method gets called by the onFling event
-        // TODO: Be sure to implement the move method in the Player (model) class
+        // COMPLETED: This method gets called by the onFling event
+        // COMPLETED: Be sure to implement the move method in the Player (model) class
+
+        int row;
+        int col;
 
         float absX = Math.abs(velocityX);
         float absY = Math.abs(velocityY);
@@ -222,13 +226,34 @@ public class GameActivity extends AppCompatActivity implements GestureDetector.O
         // 1) check to see if Player has reached the exit Row and Column
         // 2) OR if the Player and Zombie are touching
         if (player.getCol() == exitCol && player.getRow() == exitRow) {
-            wins++;
-            startNewGame();
+
+            zombieImageView = (ImageView) layoutInflater.inflate(R.layout.bunny_layout, null);
+            // zombieImageView.setX(col * SQUARE + OFFSET);
+            // zombieImageView.setY(row * SQUARE + OFFSET);
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    wins++;
+                    startNewGame();
+                }
+            }, 1900);
+
         }
         else if (player.getCol() == zombie.getCol() && player.getRow() == zombie.getRow())
         {
-            losses++;
-            startNewGame();
+            playerImageView = (ImageView) layoutInflater.inflate(R.layout.blood_layout, null);
+            //playerImageView.setX(col * SQUARE + OFFSET);
+            //playerImageView.setY(row * SQUARE + OFFSET);
+            activityGameRelativeLayout.addView(playerImageView);
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    losses++;
+                    startNewGame();
+                }
+            }, 300);
         }
 
         // TODO: Determine which absolute velocity is greater (x or y)
