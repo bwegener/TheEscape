@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity implements GestureDetector.OnGestureListener {
 
     private GestureDetector gestureDetector;
 
@@ -66,6 +67,9 @@ public class GameActivity extends AppCompatActivity {
         layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         allGameObjects = new ArrayList<>();
+
+        // Instantiate our gesture detector
+        gestureDetector = new GestureDetector(this, this);
 
         startNewGame();
 
@@ -156,14 +160,76 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void createPlayer() {
-        // TODO: Determine where to place the Player (at game start)
-        // TODO: Then, inflate the player layout
+        // COMPLETED: Determine where to place the Player (at game start)
+        // COMPLETED: Then, inflate the player layout
+        int row = 2;
+        int col = 1;
+
+        playerImageView = (ImageView) layoutInflater.inflate(R.layout.player_layout, null);
+        playerImageView.setX(col * SQUARE + OFFSET);
+        playerImageView.setY(row * SQUARE + OFFSET);
+
+        activityGameRelativeLayout.addView(playerImageView);
+        allGameObjects.add(playerImageView);
+
+        player = new Player();
+        player.setRow(row);
+        player.setCol(col);
     }
 
 
     private void movePlayer(float velocityX, float velocityY) {
         // TODO: This method gets called by the onFling event
         // TODO: Be sure to implement the move method in the Player (model) class
+
+        float absX = Math.abs(velocityX);
+        float absY = Math.abs(velocityY);
+
+        String direction = "UNKNOWN";
+
+
+        // x is bigger (move left or right)
+        if (absX >= absY)
+        {
+            if (velocityX < 0)
+                direction = "LEFT";
+            else
+                direction = "RIGHT";
+        }
+        else
+        {
+            if (velocityY < 0)
+                direction = "UP";
+            else
+                direction = "DOWN";
+        }
+
+        if (!direction.equals("UNKNOWN"))
+        {
+            player.move(gameBoard, direction);
+
+            // Move the image view as well
+            playerImageView.setX(player.getCol() * SQUARE + OFFSET);
+            playerImageView.setY(player.getRow() * SQUARE + OFFSET);
+
+            // Move the zombie + ImageView
+            zombie.move(gameBoard, player.getCol(), player.getRow());
+            zombieImageView.setX(zombie.getCol() * SQUARE + OFFSET);
+            zombieImageView.setY(zombie.getRow() * SQUARE + OFFSET);
+        }
+
+        // Make 2 decisions:
+        // 1) check to see if Player has reached the exit Row and Column
+        // 2) OR if the Player and Zombie are touching
+        if (player.getCol() == exitCol && player.getRow() == exitRow) {
+            wins++;
+            startNewGame();
+        }
+        else if (player.getCol() == zombie.getCol() && player.getRow() == zombie.getRow())
+        {
+            losses++;
+            startNewGame();
+        }
 
         // TODO: Determine which absolute velocity is greater (x or y)
         // TODO: If x is negative, move player left.  Else if x is positive, move player right.
@@ -172,4 +238,39 @@ public class GameActivity extends AppCompatActivity {
         // TODO: Then move the zombie, using the player's row and column position.
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return gestureDetector.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean onDown(MotionEvent motionEvent) {
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent motionEvent) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent motionEvent) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent motionEvent) {
+
+    }
+
+    @Override
+    public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float velocityX, float velocityY) {
+        movePlayer(velocityX, velocityY);
+        return true;
+    }
 }
